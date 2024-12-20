@@ -4,7 +4,9 @@ import shutil
 import os
 import gzip
 import pandas as pd
-from constants.constants import raw_file_dir, processed_file_dir
+import sqlite3
+import glob
+from constants.constants import raw_file_dir, processed_file_dir, raw_database_name
 
 
 def get_file_links(base_url, file_extension):
@@ -66,6 +68,29 @@ def convert_tsv_gz_to_csv(input_path, output_path_tsv, output_path_csv, chunk_si
     for i, chunk in enumerate(chunks):
         chunk.to_csv(output_path_csv, mode='a', index=False, header=(i == 0))  # Append mode and write header only once
 
+def csv_to_sqlite(db_conn, csv_file, table_name):
+
+    # read csv files into dataframe
+    df = pd.read_csv(csv_file)
+
+    # insert table sqlite database
+    df.to_sql(table_name, db_conn, if_exists="replace", index=False)
+
+    print(f"Data from {csv_file} has been inserted into {table_name} table")
+
+def identify_table_name(csv_file_path):
+
+    # get basename of file
+    file_name = os.path.basename(csv_file_path)
+
+    # split text and take first element
+    table_name = os.path.splitext(file_name)[0]
+
+    # replace . with _
+    table_name = table_name.replace(".", "_")
+
+    return table_name
+
 # get all file linkes
 file_links = get_file_links("https://datasets.imdbws.com/", ".tsv.gz")
 
@@ -100,6 +125,25 @@ for file in raw_file_names:
     processed_file_path_csv = os.path.join(processed_file_dir, name_csv)
     # convert to csv and save
     convert_tsv_gz_to_csv(raw_file_path, processed_file_path_tsv, processed_file_path_csv)
-    
 
-print("data ready")
+# filter for csv files
+filtered_paths = glob.glob(f"{processed_file_dir}/*.csv")
+
+# connection for database
+db_path = f"{processed_file_dir}/{raw_database_name}"
+
+# create database or connect if it doesn't exist
+conn = sqlite3.connect(db_path)
+
+for csv_path in filtered_paths:
+
+    # get table name
+    table_name = identify_table_name(csv_path)
+
+    # add table to database
+    csv_to_sqlite(conn, csv_path, table_name)
+
+# close connection
+conn.close()
+
+print("data processed :)")
