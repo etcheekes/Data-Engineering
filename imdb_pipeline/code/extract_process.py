@@ -4,6 +4,8 @@ import shutil
 import os
 import gzip
 import pandas as pd
+from constants.constants import raw_file_dir, processed_file_dir
+
 
 def get_file_links(base_url, file_extension):
     '''
@@ -64,9 +66,6 @@ def convert_tsv_gz_to_csv(input_path, output_path_tsv, output_path_csv, chunk_si
     for i, chunk in enumerate(chunks):
         chunk.to_csv(output_path_csv, mode='a', index=False, header=(i == 0))  # Append mode and write header only once
 
-# variables
-script_dir = os.path.dirname(__file__)
-
 # get all file linkes
 file_links = get_file_links("https://datasets.imdbws.com/", ".tsv.gz")
 
@@ -76,12 +75,9 @@ for link in file_links:
     file_name = os.path.basename(link)
     # download file
     print(f"Downloading {file_name}")
-    download_file(link, os.path.join("..", "data", "raw", file_name))
+    download_file(link, os.path.join(raw_file_dir, file_name))
+    # download_file(link, os.path.join("..", "data", "raw", file_name))
     print(f"Downloading {file_name} complete")
-    
-# relevant folders
-raw_file_dir = os.path.join("..", "data", "raw")
-processed_file_dir = os.path.join("..", "data", "processed")
 
 # get tsv file names
 raw_file_names = os.listdir(raw_file_dir)
