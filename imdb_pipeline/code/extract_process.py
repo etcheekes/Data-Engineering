@@ -130,7 +130,7 @@ for file in raw_file_names:
 filtered_paths = glob.glob(f"{processed_file_dir}/*.csv")
 
 # connection for database
-db_path = f"{processed_file_dir}/{raw_database_name}"
+db_path = f"{raw_file_dir}/{raw_database_name}"
 
 # create database or connect if it doesn't exist
 conn = sqlite3.connect(db_path)
@@ -146,4 +146,4 @@ for csv_path in filtered_paths:
 # close connection
 conn.close()
 
-print("data processed :)")
+print("data extracted to database :)")
