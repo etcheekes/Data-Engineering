@@ -1,7 +1,8 @@
 import shutil
 import glob
 import os
-from constants.constants import raw_file_dir, processed_file_dir, raw_database_name
+import sqlite3
+from constants.constants import raw_file_dir, processed_file_dir, raw_database_name, processed_database_name
 
 def move_file_single(filename, dst, src, ext):
 
@@ -18,19 +19,37 @@ def move_file_single(filename, dst, src, ext):
     except Exception as e: 
         print(f"file not moved. Error: {e}")
 
-    # move copied version of file
+def rename_file(file_to_rename, new_name):
+    try:
+        # attempt to rename file
+        os.rename(file_to_rename, new_name)
+        print("rename successful")
+    except OSError as e:
+        # report error if error occurs
+        print(f"error renaming file: {e}")
+
+def query_read(db_path, query_string):
+
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute(query_string)
+        results = cursor.fetchall()
+        return results
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+        return None
     
-test = move_file_single(raw_database_name, processed_file_dir, raw_file_dir, ".db")
-
 # variables
-transfer_raw_file = False
+old_db_name = f"{processed_file_dir}/{raw_database_name}"
+new_db_name = f"{processed_file_dir}/{processed_database_name}"
 
-if transfer_raw_file == True:
+if os.path.exists(new_db_name) != True:
     move_file_single(raw_database_name, processed_file_dir, raw_file_dir, ".db")
     print("db file transferred")
+    rename_file(old_db_name, new_db_name)
 else:
     print("db file already exists")
-
 # function to run queries
 # def execute_query(db, query):
 #     print("test")
