@@ -1,8 +1,12 @@
 import os
+from pathlib import Path
+
+# get root directory
+root_dir = Path(__file__).resolve().parent.parent.parent
 
 # relevant folders
-raw_file_dir = os.path.join("..", "data", "raw")
-processed_file_dir = os.path.join("..", "data", "processed")
+raw_file_dir = os.path.join(root_dir, "data", "raw")
+processed_file_dir = os.path.join(root_dir, "data", "processed")
 
 # raw database name
 raw_database_name = "raw_imdb_database.db"

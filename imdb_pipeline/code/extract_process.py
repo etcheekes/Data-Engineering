@@ -101,11 +101,13 @@ for link in file_links:
     # download file
     print(f"Downloading {file_name}")
     download_file(link, os.path.join(raw_file_dir, file_name))
-    # download_file(link, os.path.join("..", "data", "raw", file_name))
     print(f"Downloading {file_name} complete")
 
 # get tsv file names
 raw_file_names = os.listdir(raw_file_dir)
+
+# filter for .tsv.gz files
+raw_file_names = [file for file in raw_file_names if ".tsv.gz" in file]
 
 # convert files to csv
 for file in raw_file_names:
