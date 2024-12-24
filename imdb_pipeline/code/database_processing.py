@@ -28,29 +28,6 @@ def rename_file(file_to_rename, new_name):
         # report error if error occurs
         print(f"error renaming file: {e}")
 
-def run_query(db_path, query_string):
-
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        # execute query string
-        cursor.execute(query_string)
-        # identify if read query
-        read_query = "SELECT * FROM title_ratings".lower().strip().startswith("select")
-        if read_query:
-            # if read query
-            results = cursor.fetchall()
-            conn.close()
-            return results
-        else:
-            # if any query that modifies the database
-            conn.commit()
-            conn.close()
-    except sqlite3.Error as e:
-        print(f"Error: {e}")
-        return None
-    
-
 def update_nulls(db_path, table, missing_placeholder):
     '''Function to programmatically query database to alter all missing_placeholder values
     to NULL for each column in table'''
@@ -65,7 +42,6 @@ def update_nulls(db_path, table, missing_placeholder):
         columns = [info[1] for info in column_info_tuple]
         # execute update query
         for column in columns:
-            # cursor.execute(f"UPDATE {table} SET {column} = NULL WHERE {column} = {missing_placeholder}")
             cursor.execute(f"UPDATE {table} SET {column} = NULL WHERE {column} = ?", (missing_placeholder,))
     except sqlite3.Error as e:
         print(f"Error: {e}")
