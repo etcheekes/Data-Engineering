@@ -96,3 +96,39 @@ ORDER BY
 	num_roles DESC
 """
 run_query(processed_db, query_tv_actor_appearances)
+
+# create view that orders movies by decade
+query_movie_by_decade = """
+CREATE VIEW movie_by_decade AS
+SELECT 
+	primaryTitle AS movie,
+	CAST(startYear AS INTEGER) / 10 * 10 as decade_released
+FROM 
+	title_basics
+WHERE
+	decade_released < 2025 AND titleType = 'movie'
+ORDER BY 
+	decade_released DESC
+"""
+run_query(processed_db, query_movie_by_decade)
+
+# create view that orders tv media by decade
+query_tv_by_decade = """
+CREATE VIEW tv_by_decade AS
+SELECT 
+	primaryTitle AS tv_media,
+	CAST(startYear AS INTEGER) / 10 * 10 as decade_released
+FROM 
+	title_basics
+WHERE
+	decade_released < 2025 AND titleType in 
+    ("tvShort",
+	"tvMovie",
+	"tvEpisode",
+	"tvSeries",
+	"tvMiniSeries",
+	"tvSpecial")
+ORDER BY 
+	decade_released DESC
+"""
+run_query(processed_db, query_tv_by_decade)
