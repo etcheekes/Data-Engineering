@@ -132,3 +132,19 @@ ORDER BY
 	decade_released DESC
 """
 run_query(processed_db, query_tv_by_decade)
+
+query_director_by_movie = """
+CREATE VIEW directors_by_film AS
+SELECT
+	t3.primaryName AS director_name,
+	t1.primaryTitle AS movie_name
+from
+	title_basics t1
+INNER JOIN
+	title_principals t2 ON t1.tconst=t2.tconst
+INNER JOIN
+	name_basics t3 ON t2.nconst=t3.nconst
+WHERE
+	t2.category="director" AND t1.titleType="movie"
+"""
+run_query(processed_db, query_director_by_movie)
