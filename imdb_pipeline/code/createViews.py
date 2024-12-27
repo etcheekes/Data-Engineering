@@ -48,6 +48,40 @@ ORDER BY
 """
 run_query(processed_db, query_media_ratings)
 
+# create view that shows the highest rated movie by genre(s)
+query_move_ratings_by_genre = """
+CREATE VIEW highest_ratings_genres AS
+WITH GenreMaxRating AS (
+SELECT  
+	a.primaryTitle as name, 
+	b.averageRating as rating, 
+	a.genres as genres, 
+	a.titleType as mediaType, 
+	b.numVotes as votes,
+	ROW_NUMBER() OVER (PARTITION BY a.genres ORDER BY b.averageRating DESC) as RowRank
+FROM 
+	title_basics a 
+INNER JOIN 
+	title_ratings b 
+ON 
+	a.tconst=b.tconst
+WHERE
+	b.numVotes > 200 AND
+	a.titleType = "movie"
+)
+SELECT
+	name,
+	rating,
+	genres,
+	votes
+FROM 
+	GenreMaxRating
+WHERE
+	RowRank = 1
+ORDER BY 
+	name"""
+run_query(processed_db, query_move_ratings_by_genre)
+
 # create view that orders actors in films by number of appearances
 
 query_film_actor_appearances = """
@@ -133,6 +167,8 @@ ORDER BY
 """
 run_query(processed_db, query_tv_by_decade)
 
+
+# create view that lists directors by movie
 query_director_by_movie = """
 CREATE VIEW directors_by_film AS
 SELECT
@@ -148,3 +184,31 @@ WHERE
 	t2.category="director" AND t1.titleType="movie"
 """
 run_query(processed_db, query_director_by_movie)
+
+# create view that shows TV series with the most seasons
+query_tv_seasons_count = """
+CREATE VIEW tv_seasons_max AS
+WITH rankedSeason AS (
+	SELECT
+		parentTconst,
+		seasonNumber,
+		ROW_NUMBER() OVER (PARTITION BY parentTconst ORDER BY seasonNumber DESC) AS RowRank
+	FROM
+		title_episode
+)
+SELECT
+	T2.primaryTitle AS tv_series,
+	CAST(T1.seasonNumber AS NUMERIC) AS season_number
+FROM 
+	rankedSeason T1
+INNER JOIN 
+	title_basics T2
+ON
+	T2.tconst = t1.parentTconst
+WHERE
+	T1.RowRank = 1 AND
+	seasonNumber IS NOT NULL
+ORDER BY
+	season_number DESC
+"""
+run_query(processed_db, query_tv_seasons_count)
