@@ -170,7 +170,7 @@ run_query(processed_db, query_tv_by_decade)
 
 # create view that lists directors by movie
 query_director_by_movie = """
-CREATE VIEW directors_by_film AS
+CREATE VIEW directors_by_film_names AS
 SELECT
 	t3.primaryName AS director_name,
 	t1.primaryTitle AS movie_name
@@ -212,3 +212,22 @@ ORDER BY
 	season_number DESC
 """
 run_query(processed_db, query_tv_seasons_count)
+
+# create view that lists the number of directors for each movie
+query_directors_per_movie = """
+CREATE VIEW num_directors_per_movie AS
+SELECT
+	T1.primaryTitle AS movie,
+    -- identify number of directors
+	LENGTH(T2.directors) - LENGTH(REPLACE(T2.directors,',','')) + 1 as num_directors
+FROM
+	title_basics T1
+INNER JOIN
+	title_crew T2
+ON
+	T1.tconst = T2.tconst
+WHERE
+	num_directors IS NOT NULL 
+	AND T1.titleType = 'movie'
+"""
+run_query(processed_db, query_directors_per_movie)
