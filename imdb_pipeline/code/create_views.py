@@ -1,28 +1,5 @@
-import sqlite3
 from constants.constants import processed_file_dir, processed_database_name
-
-
-def run_query(db_path, query_string, params=()):
-
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        # execute query string with given parameteres
-        cursor.execute(query_string, params)
-        # identify if read query
-        read_query = query_string.lower().strip().startswith("select")
-        if read_query:
-            # if read query
-            results = cursor.fetchall()
-            conn.close()
-            return results
-        else:
-            # if any query that modifies the database
-            conn.commit()
-            conn.close()
-    except sqlite3.Error as e:
-        print(f"Error: {e}")
-        return None
+from utils.functions import run_query
     
 # variables
 processed_db = f"{processed_file_dir}/{processed_database_name}"
