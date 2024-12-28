@@ -4,4 +4,5 @@
 *.tsv.gz
 *.db
 *.pyc
-*.txt
+queries.txt
+plan.txt
