@@ -2,3 +2,6 @@
 *.csv
 *.tsv
 *.tsv.gz
+*.db
+*.pyc
+*.txt
