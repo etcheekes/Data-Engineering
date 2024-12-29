@@ -6,3 +6,8 @@
 *.pyc
 queries.txt
 plan.txt
+
+# But don't ignore the folders themselves or the .gitkeep files 
+!.gitkeep 
+!data/raw/
+!data/processed/
