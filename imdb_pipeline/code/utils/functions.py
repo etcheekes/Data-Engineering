@@ -9,7 +9,7 @@ import glob
 
 def get_file_links(base_url, file_extension):
     '''
-    Scrape file links from IMDB's non-commerical use database
+    Retrieves all links from a given web page that have a specified file extension.
     '''
 
     # get response from page
@@ -34,8 +34,9 @@ def get_file_links(base_url, file_extension):
 
 def download_file(url, output_file):
     '''
-    download the raw files
+    Downloads a file from a given URL and saves it to a specified output file path.
     '''
+
     # Send an HTTP GET request to the specified URL and stream the response
     response = requests.get(url, stream=True)
     
@@ -51,6 +52,10 @@ def download_file(url, output_file):
         print(f'Failed to download {url}')
 
 def convert_tsv_gz_to_csv(input_path, output_path_tsv, output_path_csv, chunk_size=100000):
+    '''
+    handles the conversion of a .tsv.gz file (a gzipped TSV file) to a CSV file. It
+    processes the data in manageable chunks to avoid memory issues with large files
+    '''
     # Unzip and write in chunks
     with gzip.open(input_path, "rt", encoding="utf-8") as f_in:
         with open(output_path_tsv, 'wt', encoding='utf-8') as f_out:
@@ -67,6 +72,9 @@ def convert_tsv_gz_to_csv(input_path, output_path_tsv, output_path_csv, chunk_si
         chunk.to_csv(output_path_csv, mode='a', index=False, header=(i == 0))  # Append mode and write header only once
 
 def csv_to_sqlite(db_conn, csv_file, table_name):
+    '''
+    Reads data from a CSV file and inserts it into an SQLite database table.
+    '''
 
     # read csv files into dataframe
     df = pd.read_csv(csv_file)
@@ -77,7 +85,9 @@ def csv_to_sqlite(db_conn, csv_file, table_name):
     print(f"Data from {csv_file} has been inserted into {table_name} table")
 
 def identify_table_name(csv_file_path):
-
+    '''
+    Generates a table name from a given CSV file path.
+    '''
     # get basename of file
     file_name = os.path.basename(csv_file_path)
 
@@ -90,6 +100,11 @@ def identify_table_name(csv_file_path):
     return table_name
 
 def move_file_single(filename, dst, src, ext):
+
+    '''
+    searches for a file with a specific name and extension in a source directory, 
+    and then copies it to a destination directory.
+    '''
 
     # pattern to search
     pattern = f"{src}/*{ext}"
@@ -105,6 +120,9 @@ def move_file_single(filename, dst, src, ext):
         print(f"file not moved. Error: {e}")
 
 def rename_file(file_to_rename, new_name):
+    '''
+    Renames a specified file to a new name.
+    '''
     try:
         # attempt to rename file
         os.rename(file_to_rename, new_name)
@@ -114,8 +132,10 @@ def rename_file(file_to_rename, new_name):
         print(f"error renaming file: {e}")
 
 def update_nulls(db_path, table, missing_placeholder):
-    '''Function to programmatically query database to alter all missing_placeholder values
-    to NULL for each column in table'''
+    '''
+    Function to programmatically query database to alter all missing_placeholder values
+    to NULL for each column in table.
+    '''
     try:
         # connect to database
         conn = sqlite3.connect(db_path)
@@ -138,7 +158,10 @@ def update_nulls(db_path, table, missing_placeholder):
             conn.close()
 
 def run_query(db_path, query_string, params=()):
-
+    '''
+    Executes a specified SQL query on an SQLite database. Returns results if it is a read operation or
+    if non-read option commits the change implemented from the query.
+    '''
     try:
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
