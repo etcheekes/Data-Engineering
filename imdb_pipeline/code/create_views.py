@@ -26,8 +26,9 @@ ORDER BY
 run_query(processed_db, query_media_ratings)
 
 # create view that shows the highest rated movie by genre(s)
-query_move_ratings_by_genre = """
+query_movie_ratings_by_genre = """
 CREATE VIEW highest_ratings_genres AS
+-- Define a Common Table Expression
 WITH GenreMaxRating AS (
 SELECT  
 	a.primaryTitle as name, 
@@ -35,6 +36,8 @@ SELECT
 	a.genres as genres, 
 	a.titleType as mediaType, 
 	b.numVotes as votes,
+    -- PARTITION BY parentTconst means that the rows are divided into groups (partitions) based on the distinct values in parentTconst. 
+    -- Within each partition (group of rows that share the same parentTconst value), the rows are ordered by seasonNumber in descending order.
 	ROW_NUMBER() OVER (PARTITION BY a.genres ORDER BY b.averageRating DESC) as RowRank
 FROM 
 	title_basics a 
@@ -57,7 +60,7 @@ WHERE
 	RowRank = 1
 ORDER BY 
 	name"""
-run_query(processed_db, query_move_ratings_by_genre)
+run_query(processed_db, query_movie_ratings_by_genre)
 
 # create view that orders actors in films by number of appearances
 
