@@ -13,3 +13,10 @@ raw_database_name = "raw_imdb_database.db"
 
 # processed database name
 processed_database_name = "processed_imdb_database.db"
+
+# script paths
+python_file_paths = [
+    "extract_process.py",
+    "database_processing.py",
+    "create_views.py"
+]
